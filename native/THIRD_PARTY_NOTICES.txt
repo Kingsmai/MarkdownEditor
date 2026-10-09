@@ -1,0 +1,24 @@
+InkNote desktop MVP - third-party components
+
+PySide6 Essentials, Shiboken6 and Qt 6.10.3
+Copyright The Qt Company Ltd. and other contributors.
+PySide6 package metadata lists LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only.
+The accompanying LGPL-3.0 and GPL-3.0 texts are in licenses/.
+Qt libraries are dynamically loaded from the application bundle and are not modified.
+Windows/Linux use _internal/; macOS uses the framework and resource directories in InkNote.app.
+Upstream sources and component notices:
+https://code.qt.io/cgit/pyside/pyside-setup.git/?h=6.10.3
+https://code.qt.io/cgit/qt/qtbase.git/?h=v6.10.3
+https://code.qt.io/cgit/qt/qtsvg.git/?h=v6.10.3
+https://doc.qt.io/qt-6/licenses-used-in-qt.html
+
+Python 3.11
+Copyright Python Software Foundation and other contributors.
+See licenses/Python.txt.
+
+PyInstaller 6.22.3
+Copyright the PyInstaller contributors.
+See licenses/PyInstaller.txt, including the bootloader exception.
+https://github.com/pyinstaller/pyinstaller
+
+This notice describes third-party components only.

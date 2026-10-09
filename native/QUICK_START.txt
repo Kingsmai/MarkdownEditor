@@ -1,0 +1,43 @@
+墨记 · 原生块编辑器 0.3
+
+启动
+Windows：解压后双击 InkNote/InkNote.exe。
+macOS：解压后将 InkNote.app 放入 Applications 并打开。
+Linux：解压后运行 ./InkNote/InkNote。
+请保留完整的程序目录，macOS 保留完整 .app，Windows/Linux 保留 _internal。
+无需 Python、Node.js 或浏览器。分享时发送完整文件夹或 zip。
+
+正文块编辑
+空段落输入 /，可用中文或英文筛选；方向键选择，Enter 插入，Esc 关闭。
+左侧 + 插入下一块；手柄拖动排序或打开转换、复制、删除菜单。
+选中文字显示格式、链接、颜色和高亮工具。
+折叠块点击箭头展开/收起；子段落 Enter 继续，空子段落 Enter 退出。
+分栏可直接编辑，通过块菜单增删列及调整列宽；可将正文块拖入列中。
+表格填满正文宽度，右键或块菜单增删行列；Tab 在末尾新增一行。
+“显示 → 全宽正文”使用整个写作区域。
+图片支持本地文件、粘贴和 http/https 地址，新插入图片嵌入富文稿。
+
+文件与草稿
+普通内容保存 .md；颜色、高亮、下划线、折叠、分栏、内嵌图片保存 .inknote。
+富文稿的“预览”显示只读 Markdown；编辑时请切回“编辑”。
+文件菜单导出 Markdown 副本、HTML 或 PDF。Markdown 不保留颜色和高亮，分栏转为表格。
+修改后 500 ms 自动保存设备草稿；Ctrl+S 保存实际文件。
+外部文件被修改时，保存会提供另存为、覆盖和取消选项。
+
+快捷键
+Ctrl+N / O / S：新建 / 打开 / 保存；Ctrl+Shift+S：另存为。
+Ctrl+E：编辑 / 源码或预览；Ctrl+F：查找；Ctrl+Shift+F：专注。
+Ctrl+B / I / U：加粗 / 斜体 / 下划线。
+Ctrl+Shift+D：复制当前块；Ctrl+Shift+↑ / ↓：上移 / 下移块。
+Shift+Enter：块内换行；Tab / Shift+Tab：列表缩进或表格导航。
+Ctrl+Enter：切换任务完成；Ctrl+Shift+Enter：退出表格或分栏。
+
+格式边界
+Markdown 最大 2 MB；富文稿最大 8 MB；单张插入图片压缩为 PNG 后最大 2 MB。
+公式、脚注、YAML、通用 HTML 等原有 Markdown 扩展继续使用源码编辑。
+切换文稿或编辑模式会重置撤销历史。
+发布目标为 Windows x64、macOS Intel / Apple Silicon、Linux x64；各平台在对应系统构建。
+当前为便携包，未配置 Windows 发布签名或 macOS Developer ID 签名与公证。
+
+排版：工具区和正文采用紧凑间距，正文默认目标宽度 800。
+“显示 → 全宽正文”扩展写作区域，表格跟随正文宽度。

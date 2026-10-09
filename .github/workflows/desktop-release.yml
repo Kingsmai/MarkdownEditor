@@ -1,0 +1,104 @@
+name: Desktop build and release
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: Windows-x64
+            runner: windows-2022
+            architecture: x64
+          - target: macOS-arm64
+            runner: macos-14
+            architecture: arm64
+          - target: macOS-x64
+            runner: macos-15-intel
+            architecture: x64
+          - target: Linux-x64
+            runner: ubuntu-22.04
+            architecture: x64
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          architecture: ${{ matrix.architecture }}
+          cache: pip
+          cache-dependency-path: native/requirements.txt
+      - name: Install Linux desktop libraries and fonts
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libegl1 libopengl0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxkbcommon-x11-0 fonts-noto-cjk
+      - name: Install Python dependencies
+        run: python -m pip install -r native/requirements.txt
+      - name: Test Windows and macOS
+        if: runner.os != 'Linux'
+        run: python -X utf8 -m unittest discover -s native/tests -v
+      - name: Test Linux
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: xcb
+        run: xvfb-run -a python -X utf8 -m unittest discover -s native/tests -v
+      - name: Build and smoke-test Windows and macOS
+        if: runner.os != 'Linux'
+        run: python -X utf8 -m native.build --smoke-test
+      - name: Build and smoke-test Linux
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: xcb
+        run: xvfb-run -a python -X utf8 -m native.build --smoke-test
+      - uses: actions/upload-artifact@v7
+        with:
+          name: desktop-${{ matrix.target }}
+          path: |
+            desktop-dist/*.zip
+            desktop-dist/*.tar.gz
+            desktop-dist/*.sha256
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+  release:
+    name: Publish desktop packages
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: desktop-*
+          path: packages
+          merge-multiple: true
+      - name: Verify package checksums
+        working-directory: packages
+        run: sha256sum -c *.sha256
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" packages/* --clobber
+          else
+            gh release create "$RELEASE_TAG" packages/* --verify-tag --title "InkNote $RELEASE_TAG" --generate-notes
+          fi
