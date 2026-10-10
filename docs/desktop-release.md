@@ -13,6 +13,8 @@
 
 每个压缩包旁边都有同名 .sha256 文件。保留 Windows/Linux 包内的 _internal 目录；macOS 必须保留完整 .app。
 
+校验文件统一使用 UTF-8 和 LF 换行，避免 Windows 的 CRLF 被 Linux `sha256sum` 当成文件名的一部分。发布校验前也会去除行尾的 `\r`，兼容旧 Windows 校验文件，然后执行 `sha256sum -c`；安装包内容或哈希不匹配时仍会阻止发布。遇到文件名后带 `$'\r'` 的错误，可先检查校验文件的换行格式。修复需提交到新版本标签所指向的提交；重新运行旧标签仍使用旧代码。
+
 PyInstaller 在目标系统上构建，不是交叉编译器，因此 Windows 本机只能验证 Windows 产物。[PyInstaller 官方说明](https://www.pyinstaller.org/en/stable/)。
 
 固定使用 Python 3.11、PySide6 Essentials 6.10.3 和 PyInstaller 6.22.3。Qt 当前依赖的 macOS wheel 要求 13.0+，Linux x64 wheel 要求 glibc 2.34+；Linux 实际构建基线为 Ubuntu 22.04，还需要 Qt 的系统图形库。[依赖的官方 wheel 列表](https://pypi.org/project/PySide6-Essentials/6.10.3/#files)。

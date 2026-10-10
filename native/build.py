@@ -79,7 +79,8 @@ def build_package(output_directory, smoke_test=False):
         for chunk in iter(lambda: file.read(1024 * 1024), b""):
             digest.update(chunk)
     checksum = Path(str(archive) + ".sha256")
-    checksum.write_text(digest.hexdigest() + "  " + archive.name + "\n", encoding="utf-8")
+    # Linux sha256sum treats a Windows CRLF carriage return as part of the filename.
+    checksum.write_text(digest.hexdigest() + "  " + archive.name + "\n", encoding="utf-8", newline="\n")
     print(archive)
     print(checksum)
     return archive

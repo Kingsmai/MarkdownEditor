@@ -111,7 +111,10 @@ jobs:
           merge-multiple: true
       - name: Verify package checksums
         working-directory: packages
-        run: sha256sum -c *.sha256
+        run: |
+          # Accept checksum files produced by older Windows builds with CRLF.
+          sed -i 's/\r$//' *.sha256
+          sha256sum -c *.sha256
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
