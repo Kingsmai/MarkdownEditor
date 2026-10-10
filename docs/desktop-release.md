@@ -82,7 +82,11 @@ python -m native --smoke-test
 
 构建时的 --smoke-test 启动实际打包程序，使用自动清理的临时草稿，运行事件循环、退出保存并检查草稿已经写入。它不能与 file 或 --data-dir 同时使用，避免误用用户数据。
 
-Linux CI 安装 xvfb、Qt 所需的 XCB/OpenGL 库和中文字体，通过 xvfb-run 执行真实 Qt 控件测试与打包程序启动检查。对应 apt 软件包在工作流中直接列出。
+Linux CI 安装 xvfb、xauth、Qt 所需的完整 XCB/OpenGL 库和中文字体，通过 xvfb-run 执行真实 Qt 控件测试与打包程序启动检查。对应 apt 软件包在工作流中直接列出，继续使用 xcb 平台验证桌面程序。
+
+测试前的 `Check Linux Qt platform dependencies` 步骤通过 `QLibraryInfo` 找到当前 PySide6 的 `libqxcb.so`，用 `ldd` 检查它及其间接依赖，再通过 Xvfb 创建一个 `QApplication`，确认实际使用 xcb。缺库时会提前失败并列出 `not found`；Qt 初始化失败时会输出插件加载日志。
+
+如果出现 `From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed` 和退出码 134，先查看这个检查步骤。该提示也可能由其他 xcb 动态库缺失引起，不能只检查 cursor 包；例如 `libxcb-shape.so.0` 对应 Ubuntu 的 `libxcb-shape0`。按 `ldd` 的缺失项调整工作流中的 apt 安装清单，依赖依据见 [Qt 6.10 的 X11 要求](https://doc.qt.io/qt-6.10/linux-requirements.html)。修改后提交并推送新的提交以触发构建；重新运行旧提交仍使用旧工作流。
 
 ## 维护地图
 
@@ -103,7 +107,7 @@ Linux CI 安装 xvfb、Qt 所需的 XCB/OpenGL 库和中文字体，通过 xvfb-
   ↓
 GitHub Actions 系统与架构矩阵
   ↓
-安装依赖 → Qt 回归测试
+安装依赖 → Linux xcb 动态库与启动检查 → Qt 回归测试
   ↓
 native.build → PyInstaller → 实际程序 --smoke-test
   ↓
